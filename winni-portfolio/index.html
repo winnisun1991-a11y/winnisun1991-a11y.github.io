@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101011">
+  <title>Winni 作品集</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+      --background: #101011;
+      --panel: #171718;
+      --border: #323234;
+      --text: #f5f3ef;
+      --muted: #adacaa;
+      --accent: #eed6b8;
+      --gutter: clamp(0.875rem, 3vw, 3rem);
+      --control-width: clamp(7.5rem, 18vw, 10rem);
+      --control-height: 2.75rem;
+      --toolbar-padding: 0.5rem;
+      --toolbar-title-height: 0rem;
+      --pagination-padding: 0.625rem;
+      --toolbar-height: calc(var(--control-height) + var(--toolbar-title-height) + 2 * var(--toolbar-padding) + 1px);
+      --pagination-height: calc(var(--control-height) + 2 * var(--pagination-padding) + 1px + env(safe-area-inset-bottom));
+      --reader-padding: 1rem;
+      scroll-padding-top: calc(var(--toolbar-height) + var(--reader-padding));
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      min-height: 100dvh;
+      background: var(--background);
+      color: var(--text);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    a:focus-visible, h1:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      grid-template-rows: var(--control-height);
+      align-items: center;
+      column-gap: 1rem;
+      padding: var(--toolbar-padding) var(--gutter);
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .toolbar-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .wordmark {
+      display: inline-flex;
+      min-height: var(--control-height);
+      align-items: center;
+      gap: 0.625rem;
+      font-size: 0.875rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .wordmark strong {
+      color: var(--text);
+      font-weight: 700;
+      letter-spacing: 0.13em;
+    }
+
+    .wordmark span {
+      border-left: 1px solid var(--border);
+      padding-left: 0.625rem;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .control {
+      --glass-fill: #2525279c;
+      --glass-rim: 0.72;
+      position: relative;
+      isolation: isolate;
+      display: inline-flex;
+      min-width: min(100%, var(--control-width));
+      min-height: var(--control-height);
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #ffffff16;
+      border-radius: 999px;
+      padding: 0.5rem clamp(0.5625rem, 3vw, 1.25rem);
+      background:
+        radial-gradient(65% 84% at var(--glass-light-x, 24%) -14%, #ffffff20, transparent 85%),
+        linear-gradient(180deg, #ffffff00 28%, #ffffff0a 68%, #ffffff16),
+        var(--glass-fill);
+      -webkit-backdrop-filter: blur(12px) saturate(145%);
+      backdrop-filter: blur(12px) saturate(145%);
+      box-shadow: inset 0 1px 1px #ffffff0a, inset 0 -2px 3px #ffffff09, 0 4px 12px #0005;
+      font-size: 0.875rem;
+      font-weight: 550;
+      line-height: 1.25;
+      white-space: nowrap;
+      transition: background-color 180ms ease, box-shadow 180ms ease, transform 180ms cubic-bezier(0.2, 0.7, 0.35, 1);
+    }
+
+    @supports (mask-composite: exclude) {
+      .control::before {
+        position: absolute;
+        z-index: -1;
+        inset: -1px;
+        padding: 1px;
+        border-radius: inherit;
+        background:
+          radial-gradient(4rem 1.125rem at var(--glass-light-x, 24%) 0%, #ffffff85, transparent 85%),
+          radial-gradient(5rem 1.25rem at 80% 112%, #ffffff66, transparent 85%),
+          linear-gradient(158deg, #ffffff4a, #ffffff08 35%, #ffffff12 64%, #ffffff38);
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask-composite: exclude;
+        opacity: var(--glass-rim);
+        pointer-events: none;
+        content: "";
+        transition: opacity 180ms ease;
+      }
+    }
+
+    .control-primary {
+      --glass-fill: #38383aa6;
+      --glass-rim: 0.86;
+      font-weight: 650;
+    }
+
+    .reader {
+      display: grid;
+      justify-items: center;
+      gap: 0.875rem;
+      padding: var(--reader-padding) var(--gutter) calc(var(--reader-padding) + var(--pagination-height));
+    }
+
+    .page {
+      position: relative;
+      width: min(100%, max(14rem, calc((100vh - 10rem) * 16 / 9)));
+      width: min(100%, max(14rem, calc((100svh - 10rem) * 16 / 9)));
+      aspect-ratio: 16 / 9;
+      margin: 0;
+      outline: 1px solid var(--border);
+      background: #040404;
+      box-shadow: 0 1rem 4rem #0006;
+    }
+
+    .artwork, .hotspots, .image-error {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .artwork { object-fit: contain; }
+    .hotspots { pointer-events: none; }
+
+    .page:not([data-state="ready"]) .artwork,
+    .page:not([data-state="ready"]) .hotspots {
+      visibility: hidden;
+    }
+
+    .hotspot {
+      position: absolute;
+      display: block;
+      pointer-events: auto;
+      border-radius: 8.5% / 5%;
+      outline-offset: -2px;
+      transition: background-color 140ms ease, box-shadow 140ms ease;
+    }
+
+    .hotspots[data-page="3"] .hotspot { border-radius: 999px; }
+
+    .hotspot:focus-visible, .hotspot:active {
+      background: #ffffff12;
+    }
+
+    .image-error {
+      display: grid;
+      place-items: center;
+      margin: 0;
+      padding: 1rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .pagination {
+      position: fixed;
+      inset: auto 0 0;
+      z-index: 2;
+      padding-bottom: env(safe-area-inset-bottom);
+      background: var(--panel);
+      border-top: 1px solid var(--border);
+    }
+
+    .progress {
+      position: absolute;
+      top: -1px;
+      left: 0;
+      width: calc(100% / 96);
+      height: 1px;
+      background: var(--accent);
+      transition: width 180ms ease;
+    }
+
+    .pagination-inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      align-items: center;
+      justify-items: center;
+      gap: 0.75rem;
+      width: min(100%, 32rem);
+      margin-inline: auto;
+      padding: var(--pagination-padding) var(--gutter);
+    }
+
+    .pagination .control { width: min(100%, var(--control-width)); }
+
+    #next-link { grid-column: 3; }
+
+    .page-counter {
+      grid-column: 2;
+      display: flex;
+      justify-content: center;
+      gap: 0.5em;
+      min-width: 4.75rem;
+      font-size: 0.875rem;
+      font-variant-numeric: tabular-nums;
+      color: var(--muted);
+    }
+
+    #page-number {
+      color: var(--text);
+      font-weight: 650;
+    }
+
+    @media (hover: hover) {
+      .control[href]:hover {
+        --glass-fill: #434345b5;
+        --glass-rim: 1;
+      }
+
+      .hotspot:hover {
+        background: #ffffff09;
+        box-shadow: inset 0 0 0 1px #ffffff66;
+      }
+    }
+
+    .control[href]:active {
+      --glass-fill: #4c4c4ec2;
+      --glass-rim: 1;
+      box-shadow: inset 0 0 6px #ffffff24, 0 2px 4px #0004;
+      transform: scale(0.97);
+    }
+
+    @media (max-width: 40rem) {
+      :root { --toolbar-title-height: 2rem; }
+
+      .toolbar {
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-rows: var(--control-height) var(--toolbar-title-height);
+      }
+
+      h1 {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        overflow: hidden;
+        text-align: left;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; }
+      .control[href]:active { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="toolbar">
+    <div>
+      <a class="wordmark" id="cover-link" href="#page-1">
+        <strong>WINNI</strong><span>作品集</span>
+      </a>
+      <a class="control" id="return-link" href="#page-1" aria-keyshortcuts="Escape" hidden>返回封面</a>
+    </div>
+    <h1 id="page-title" tabindex="-1">个人简介</h1>
+    <nav class="toolbar-actions" aria-label="作品集导航">
+      <a class="control" id="directory-link" href="#page-2">项目目录</a>
+    </nav>
+  </header>
+
+  <main class="reader">
+    <noscript>启用浏览器的 JavaScript 后即可浏览作品集。</noscript>
+  </main>
+
+  <template id="page-template">
+    <figure class="page">
+      <img class="artwork" width="2880" height="1620" alt="" draggable="false" decoding="async">
+      <p class="image-error" role="status" hidden></p>
+    </figure>
+  </template>
+
+  <nav class="pagination" aria-label="作品集翻页">
+    <div class="progress" id="progress" aria-hidden="true"></div>
+    <div class="pagination-inner">
+      <a class="control" id="previous-link" aria-keyshortcuts="ArrowLeft" hidden>上一页</a>
+      <div class="page-counter" role="status" aria-label="当前页与总页数">
+        <span id="page-number">01</span><span>/</span><span>96</span>
+      </div>
+      <a class="control control-primary" id="next-link" href="#page-2" aria-keyshortcuts="ArrowRight">进入目录</a>
+    </div>
+  </nav>
+
+  <script>
+    const sections = [
+      { first: 1, last: 1, title: "个人简介" },
+      { first: 2, last: 2, title: "项目目录", parent: 1 },
+      { first: 3, last: 3, title: "01 AI 项目", parent: 2 },
+      { first: 4, last: 12, title: "AI UGC 创作体验设计", parent: 3 },
+      { first: 13, last: 36, title: "AI Agent 主题创作 SOP", parent: 3 },
+      { first: 37, last: 47, title: "AI 萌宠 Note70 副屏设计", parent: 3 },
+      { first: 48, last: 82, title: "02 软件体验设计", parent: 2 },
+      { first: 83, last: 95, title: "03 品牌创意设计", parent: 2 },
+      { first: 96, last: 96, title: "致谢", parent: 2 }
+    ];
+
+    const menus = new Map([
+      [2, [
+        { target: 3, bounds: [11.13, 19.70, 25.05, 74.15] },
+        { target: 48, bounds: [37.50, 19.70, 25.00, 74.15] },
+        { target: 83, bounds: [63.87, 19.70, 25.00, 74.15] }
+      ]],
+      [3, [
+        { target: 4, bounds: [4.69, 21.27, 32.57, 11.72] },
+        { target: 13, bounds: [4.69, 44.18, 32.57, 11.72] },
+        { target: 37, bounds: [2.93, 67.10, 36.08, 11.63] }
+      ]]
+    ]);
+
+    const returnLabels = { 1: "返回封面", 2: "返回目录", 3: "返回 AI 项目" };
+    const lastPage = sections.at(-1).last;
+    const pageHash = (page) => `#page-${page}`;
+    const sectionFor = (page) => sections.find(({ first, last }) => page >= first && page <= last);
+    const reader = document.querySelector(".reader");
+    const template = document.getElementById("page-template");
+    const toolbar = document.querySelector(".toolbar");
+    const scroller = document.scrollingElement;
+    const coverLink = document.getElementById("cover-link");
+    const returnLink = document.getElementById("return-link");
+    const pageTitle = document.getElementById("page-title");
+    const directoryLink = document.getElementById("directory-link");
+    const previousLink = document.getElementById("previous-link");
+    const nextLink = document.getElementById("next-link");
+    const pageNumber = document.getElementById("page-number");
+    const progress = document.getElementById("progress");
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let activePage;
+    let endAnchorPage;
+    let scrollUpdateFrame = 0;
+
+    function setImageState(frame, state) {
+      frame.dataset.state = state;
+      frame.setAttribute("aria-busy", String(state === "loading"));
+      frame.querySelector(".image-error").hidden = state !== "error";
+    }
+
+    function createProjectLinks(page) {
+      const hotspots = document.createElement("nav");
+      hotspots.className = "hotspots";
+      hotspots.dataset.page = page;
+      hotspots.setAttribute("aria-label", "画面内的项目入口");
+
+      for (const { target, bounds } of menus.get(page)) {
+        const title = sectionFor(target).title;
+        const [left, top, width, height] = bounds;
+        const overlay = document.createElement("a");
+        overlay.className = "hotspot";
+        overlay.href = pageHash(target);
+        overlay.setAttribute("aria-label", title);
+        Object.assign(overlay.style, {
+          left: `${left}%`,
+          top: `${top}%`,
+          width: `${width}%`,
+          height: `${height}%`
+        });
+        hotspots.append(overlay);
+      }
+
+      return hotspots;
+    }
+
+    function createPage(page) {
+      const frame = template.content.firstElementChild.cloneNode(true);
+      frame.id = `page-${page}`;
+      frame.dataset.page = page;
+      const artwork = frame.querySelector(".artwork");
+      artwork.alt = `${sectionFor(page).title}，第 ${page} 页`;
+      frame.querySelector(".image-error").textContent = "图片暂时无法加载。请刷新页面后重试。";
+      artwork.addEventListener("load", () => {
+        if (artwork.hasAttribute("src")) setImageState(frame, "ready");
+      });
+      artwork.addEventListener("error", () => {
+        if (artwork.hasAttribute("src")) setImageState(frame, "error");
+      });
+      if (menus.has(page)) frame.append(createProjectLinks(page));
+      return frame;
+    }
+
+    function loadArtwork(frame) {
+      const artwork = frame.querySelector(".artwork");
+      if (artwork.hasAttribute("src")) return;
+      const page = Number(frame.dataset.page);
+      setImageState(frame, "loading");
+      artwork.src = `assets/${String(page).padStart(2, "0")}.avif`;
+    }
+
+    function updateNavigation(page) {
+      if (page === activePage) return;
+      const section = sectionFor(page);
+      const focused = document.activeElement;
+      activePage = page;
+
+      coverLink.hidden = Boolean(section.parent);
+      returnLink.hidden = !section.parent;
+      if (section.parent) {
+        returnLink.href = pageHash(section.parent);
+        returnLink.textContent = returnLabels[section.parent];
+      }
+      directoryLink.hidden = page === 2 || section.parent === 2;
+      pageTitle.textContent = section.title;
+      document.title = `${section.title} · Winni 作品集`;
+
+      previousLink.hidden = page === 1;
+      if (previousLink.hidden) {
+        previousLink.removeAttribute("href");
+      } else {
+        previousLink.href = pageHash(page - 1);
+      }
+      nextLink.href = pageHash(page === lastPage ? 1 : page + 1);
+      nextLink.textContent = ({ 1: "进入目录", [lastPage]: "回到封面" })[page] ?? "下一页";
+      if (page === lastPage) {
+        nextLink.removeAttribute("aria-keyshortcuts");
+      } else {
+        nextLink.setAttribute("aria-keyshortcuts", "ArrowRight");
+      }
+      pageNumber.textContent = String(page).padStart(2, "0");
+      progress.style.width = `${page / lastPage * 100}%`;
+
+      if (focused?.hidden) pageTitle.focus({ preventScroll: true });
+    }
+
+    function isAtEnd() {
+      return scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 1;
+    }
+
+    function updateFromScroll() {
+      scrollUpdateFrame = 0;
+      if (isAtEnd()) {
+        updateNavigation(endAnchorPage ?? lastPage);
+        return;
+      }
+
+      endAnchorPage = undefined;
+      const pageSpacing = frames[1].getBoundingClientRect().top - frames[0].getBoundingClientRect().top;
+      const page = Math.floor((scroller.scrollTop + 2) / pageSpacing) + 1;
+      updateNavigation(Math.min(lastPage, Math.max(1, page)));
+    }
+
+    function scheduleScrollUpdate() {
+      if (!scrollUpdateFrame) scrollUpdateFrame = requestAnimationFrame(updateFromScroll);
+    }
+
+    function pageFromHash() {
+      const match = /^#page-(\d{1,2})$/.exec(location.hash);
+      const page = Number(match?.[1]);
+      return sectionFor(page) ? page : undefined;
+    }
+
+    function syncAnchor() {
+      const page = pageFromHash();
+      const frame = frames[page - 1];
+      endAnchorPage = frame && isAtEnd() && frame.getBoundingClientRect().top >= toolbar.offsetHeight
+        ? page
+        : undefined;
+      scheduleScrollUpdate();
+    }
+
+    const frames = Array.from({ length: lastPage }, (_, index) => createPage(index + 1));
+    reader.append(...frames);
+
+    const nearbyPages = new IntersectionObserver((entries) => {
+      for (const { target: frame, isIntersecting } of entries) {
+        if (isIntersecting) {
+          loadArtwork(frame);
+        } else {
+          const artwork = frame.querySelector(".artwork");
+          if (artwork.hasAttribute("src")) {
+            artwork.removeAttribute("src");
+            setImageState(frame, "idle");
+          }
+        }
+      }
+    }, { rootMargin: "600px 0px" });
+    for (const frame of frames) nearbyPages.observe(frame);
+
+    document.addEventListener("pointermove", (event) => {
+      if (event.pointerType === "touch" || reducedMotion.matches) return;
+
+      const control = event.target.closest(".control[href]");
+      if (!control) return;
+
+      const bounds = control.getBoundingClientRect();
+      const position = (event.clientX - bounds.left) / bounds.width * 100;
+      control.style.setProperty("--glass-light-x", `${position}%`);
+    }, { passive: true });
+    document.addEventListener("click", (event) => {
+      if (event.defaultPrevented || event.button !== 0 || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+
+      const link = event.target.closest('a[href^="#page-"]');
+      if (!link) return;
+      if (link.hash === location.hash) requestAnimationFrame(syncAnchor);
+      if (link.classList.contains("hotspot")) {
+        requestAnimationFrame(() => pageTitle.focus({ preventScroll: true }));
+      }
+    });
+    window.addEventListener("scroll", scheduleScrollUpdate, { passive: true });
+    window.addEventListener("resize", scheduleScrollUpdate);
+    window.addEventListener("hashchange", syncAnchor);
+    window.addEventListener("keydown", (event) => {
+      if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+
+      const target = {
+        ArrowLeft: activePage - 1,
+        ArrowRight: activePage + 1,
+        Escape: sectionFor(activePage).parent
+      }[event.key];
+
+      if (target >= 1 && target <= lastPage) {
+        event.preventDefault();
+        if (event.repeat) return;
+        if (location.hash === pageHash(target)) {
+          frames[target - 1].scrollIntoView();
+          syncAnchor();
+        } else {
+          location.hash = pageHash(target);
+        }
+      }
+    });
+
+    const initialPage = pageFromHash() ?? 1;
+    const initialFrame = frames[initialPage - 1];
+    loadArtwork(initialFrame);
+    if (initialPage !== 1) initialFrame.scrollIntoView();
+    updateNavigation(initialPage);
+    syncAnchor();
+  </script>
+</body>
+</html>
