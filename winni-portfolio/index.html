@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#101011">
+  <meta name="robots" content="noindex">
   <title>Winni 作品集</title>
   <style>
     :root {
@@ -22,7 +23,7 @@
       --toolbar-title-height: 0rem;
       --pagination-padding: 0.625rem;
       --toolbar-height: calc(var(--control-height) + var(--toolbar-title-height) + 2 * var(--toolbar-padding) + 1px);
-      --pagination-height: calc(var(--control-height) + 2 * var(--pagination-padding) + 1px + env(safe-area-inset-bottom));
+      --pagination-height: calc(var(--control-height) + 2 * var(--pagination-padding) + 1px + env(safe-area-inset-bottom, 0px));
       --reader-padding: 1rem;
       scroll-padding-top: calc(var(--toolbar-height) + var(--reader-padding));
     }
@@ -157,6 +158,7 @@
 
     .page {
       position: relative;
+      width: 100%;
       width: min(100%, max(14rem, calc((100vh - 10rem) * 16 / 9)));
       width: min(100%, max(14rem, calc((100svh - 10rem) * 16 / 9)));
       aspect-ratio: 16 / 9;
@@ -166,18 +168,18 @@
       box-shadow: 0 1rem 4rem #0006;
     }
 
-    .artwork, .hotspots, .image-error {
+    .hotspots, .image-error {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
     }
 
-    .artwork { object-fit: contain; }
+    .artwork { display: block; width: 100%; height: auto; }
     .hotspots { pointer-events: none; }
 
-    .page:not([data-state="ready"]) .artwork,
-    .page:not([data-state="ready"]) .hotspots {
+    .page[data-state="error"] .artwork,
+    .page[data-state="error"] .hotspots {
       visibility: hidden;
     }
 
@@ -209,16 +211,28 @@
       position: fixed;
       inset: auto 0 0;
       z-index: 2;
-      padding-bottom: env(safe-area-inset-bottom);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
       background: var(--panel);
       border-top: 1px solid var(--border);
+    }
+
+    @media (hover: none) and (pointer: coarse) {
+      .reader {
+        padding-bottom: calc(var(--reader-padding) + var(--pagination-height) + var(--viewport-bottom-gap, 0px));
+      }
+
+      .pagination {
+        position: sticky;
+        bottom: var(--viewport-bottom-gap, 0px);
+        margin-top: calc(-1 * var(--pagination-height));
+      }
     }
 
     .progress {
       position: absolute;
       top: -1px;
       left: 0;
-      width: calc(100% / 96);
+      width: var(--page-progress, calc(100% / 96));
       height: 1px;
       background: var(--accent);
       transition: width 180ms ease;
@@ -237,7 +251,7 @@
 
     .pagination .control { width: min(100%, var(--control-width)); }
 
-    #next-link { grid-column: 3; }
+    .pagination-next { grid-column: 3; }
 
     .page-counter {
       grid-column: 2;
@@ -250,7 +264,7 @@
       color: var(--muted);
     }
 
-    #page-number {
+    .page-counter > :first-child {
       color: var(--text);
       font-weight: 650;
     }
@@ -296,15 +310,140 @@
       *, *::before, *::after { transition: none !important; }
       .control[href]:active { transform: none; }
     }
+    :root:not(.enhanced) { --toolbar-title-height: 0rem; }
+
+    :root:not(.enhanced) .toolbar {
+      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-rows: var(--control-height);
+      column-gap: 0.5rem;
+    }
+
+    :root:not(.enhanced) .toolbar .control {
+      min-width: 0;
+      padding-inline: 0.625rem;
+    }
+
+    :root:not(.enhanced) #page-title,
+    .fallback-return,
+    .fallback-pagination { display: none; }
+
+    :root:not(.enhanced):has(.page[data-parent]:target) #cover-link,
+    :root:not(.enhanced):has(#page-2:target, .page[data-parent="2"]:target) #directory-link,
+    :root:not(.enhanced):has(.page:target:not(#page-1)) #live-pagination {
+      display: none;
+    }
+
+    :root:not(.enhanced):has(.page[data-parent="1"]:target) .fallback-return[href="#page-1"],
+    :root:not(.enhanced):has(.page[data-parent="2"]:target) .fallback-return[href="#page-2"],
+    :root:not(.enhanced):has(.page[data-parent="3"]:target) .fallback-return[href="#page-3"] { display: inline-flex; }
+
+    :root:not(.enhanced):has(#page-2:target) .fallback-pagination[data-page="2"],
+    :root:not(.enhanced):has(#page-3:target) .fallback-pagination[data-page="3"],
+    :root:not(.enhanced):has(#page-4:target) .fallback-pagination[data-page="4"],
+    :root:not(.enhanced):has(#page-5:target) .fallback-pagination[data-page="5"],
+    :root:not(.enhanced):has(#page-6:target) .fallback-pagination[data-page="6"],
+    :root:not(.enhanced):has(#page-7:target) .fallback-pagination[data-page="7"],
+    :root:not(.enhanced):has(#page-8:target) .fallback-pagination[data-page="8"],
+    :root:not(.enhanced):has(#page-9:target) .fallback-pagination[data-page="9"],
+    :root:not(.enhanced):has(#page-10:target) .fallback-pagination[data-page="10"],
+    :root:not(.enhanced):has(#page-11:target) .fallback-pagination[data-page="11"],
+    :root:not(.enhanced):has(#page-12:target) .fallback-pagination[data-page="12"],
+    :root:not(.enhanced):has(#page-13:target) .fallback-pagination[data-page="13"],
+    :root:not(.enhanced):has(#page-14:target) .fallback-pagination[data-page="14"],
+    :root:not(.enhanced):has(#page-15:target) .fallback-pagination[data-page="15"],
+    :root:not(.enhanced):has(#page-16:target) .fallback-pagination[data-page="16"],
+    :root:not(.enhanced):has(#page-17:target) .fallback-pagination[data-page="17"],
+    :root:not(.enhanced):has(#page-18:target) .fallback-pagination[data-page="18"],
+    :root:not(.enhanced):has(#page-19:target) .fallback-pagination[data-page="19"],
+    :root:not(.enhanced):has(#page-20:target) .fallback-pagination[data-page="20"],
+    :root:not(.enhanced):has(#page-21:target) .fallback-pagination[data-page="21"],
+    :root:not(.enhanced):has(#page-22:target) .fallback-pagination[data-page="22"],
+    :root:not(.enhanced):has(#page-23:target) .fallback-pagination[data-page="23"],
+    :root:not(.enhanced):has(#page-24:target) .fallback-pagination[data-page="24"],
+    :root:not(.enhanced):has(#page-25:target) .fallback-pagination[data-page="25"],
+    :root:not(.enhanced):has(#page-26:target) .fallback-pagination[data-page="26"],
+    :root:not(.enhanced):has(#page-27:target) .fallback-pagination[data-page="27"],
+    :root:not(.enhanced):has(#page-28:target) .fallback-pagination[data-page="28"],
+    :root:not(.enhanced):has(#page-29:target) .fallback-pagination[data-page="29"],
+    :root:not(.enhanced):has(#page-30:target) .fallback-pagination[data-page="30"],
+    :root:not(.enhanced):has(#page-31:target) .fallback-pagination[data-page="31"],
+    :root:not(.enhanced):has(#page-32:target) .fallback-pagination[data-page="32"],
+    :root:not(.enhanced):has(#page-33:target) .fallback-pagination[data-page="33"],
+    :root:not(.enhanced):has(#page-34:target) .fallback-pagination[data-page="34"],
+    :root:not(.enhanced):has(#page-35:target) .fallback-pagination[data-page="35"],
+    :root:not(.enhanced):has(#page-36:target) .fallback-pagination[data-page="36"],
+    :root:not(.enhanced):has(#page-37:target) .fallback-pagination[data-page="37"],
+    :root:not(.enhanced):has(#page-38:target) .fallback-pagination[data-page="38"],
+    :root:not(.enhanced):has(#page-39:target) .fallback-pagination[data-page="39"],
+    :root:not(.enhanced):has(#page-40:target) .fallback-pagination[data-page="40"],
+    :root:not(.enhanced):has(#page-41:target) .fallback-pagination[data-page="41"],
+    :root:not(.enhanced):has(#page-42:target) .fallback-pagination[data-page="42"],
+    :root:not(.enhanced):has(#page-43:target) .fallback-pagination[data-page="43"],
+    :root:not(.enhanced):has(#page-44:target) .fallback-pagination[data-page="44"],
+    :root:not(.enhanced):has(#page-45:target) .fallback-pagination[data-page="45"],
+    :root:not(.enhanced):has(#page-46:target) .fallback-pagination[data-page="46"],
+    :root:not(.enhanced):has(#page-47:target) .fallback-pagination[data-page="47"],
+    :root:not(.enhanced):has(#page-48:target) .fallback-pagination[data-page="48"],
+    :root:not(.enhanced):has(#page-49:target) .fallback-pagination[data-page="49"],
+    :root:not(.enhanced):has(#page-50:target) .fallback-pagination[data-page="50"],
+    :root:not(.enhanced):has(#page-51:target) .fallback-pagination[data-page="51"],
+    :root:not(.enhanced):has(#page-52:target) .fallback-pagination[data-page="52"],
+    :root:not(.enhanced):has(#page-53:target) .fallback-pagination[data-page="53"],
+    :root:not(.enhanced):has(#page-54:target) .fallback-pagination[data-page="54"],
+    :root:not(.enhanced):has(#page-55:target) .fallback-pagination[data-page="55"],
+    :root:not(.enhanced):has(#page-56:target) .fallback-pagination[data-page="56"],
+    :root:not(.enhanced):has(#page-57:target) .fallback-pagination[data-page="57"],
+    :root:not(.enhanced):has(#page-58:target) .fallback-pagination[data-page="58"],
+    :root:not(.enhanced):has(#page-59:target) .fallback-pagination[data-page="59"],
+    :root:not(.enhanced):has(#page-60:target) .fallback-pagination[data-page="60"],
+    :root:not(.enhanced):has(#page-61:target) .fallback-pagination[data-page="61"],
+    :root:not(.enhanced):has(#page-62:target) .fallback-pagination[data-page="62"],
+    :root:not(.enhanced):has(#page-63:target) .fallback-pagination[data-page="63"],
+    :root:not(.enhanced):has(#page-64:target) .fallback-pagination[data-page="64"],
+    :root:not(.enhanced):has(#page-65:target) .fallback-pagination[data-page="65"],
+    :root:not(.enhanced):has(#page-66:target) .fallback-pagination[data-page="66"],
+    :root:not(.enhanced):has(#page-67:target) .fallback-pagination[data-page="67"],
+    :root:not(.enhanced):has(#page-68:target) .fallback-pagination[data-page="68"],
+    :root:not(.enhanced):has(#page-69:target) .fallback-pagination[data-page="69"],
+    :root:not(.enhanced):has(#page-70:target) .fallback-pagination[data-page="70"],
+    :root:not(.enhanced):has(#page-71:target) .fallback-pagination[data-page="71"],
+    :root:not(.enhanced):has(#page-72:target) .fallback-pagination[data-page="72"],
+    :root:not(.enhanced):has(#page-73:target) .fallback-pagination[data-page="73"],
+    :root:not(.enhanced):has(#page-74:target) .fallback-pagination[data-page="74"],
+    :root:not(.enhanced):has(#page-75:target) .fallback-pagination[data-page="75"],
+    :root:not(.enhanced):has(#page-76:target) .fallback-pagination[data-page="76"],
+    :root:not(.enhanced):has(#page-77:target) .fallback-pagination[data-page="77"],
+    :root:not(.enhanced):has(#page-78:target) .fallback-pagination[data-page="78"],
+    :root:not(.enhanced):has(#page-79:target) .fallback-pagination[data-page="79"],
+    :root:not(.enhanced):has(#page-80:target) .fallback-pagination[data-page="80"],
+    :root:not(.enhanced):has(#page-81:target) .fallback-pagination[data-page="81"],
+    :root:not(.enhanced):has(#page-82:target) .fallback-pagination[data-page="82"],
+    :root:not(.enhanced):has(#page-83:target) .fallback-pagination[data-page="83"],
+    :root:not(.enhanced):has(#page-84:target) .fallback-pagination[data-page="84"],
+    :root:not(.enhanced):has(#page-85:target) .fallback-pagination[data-page="85"],
+    :root:not(.enhanced):has(#page-86:target) .fallback-pagination[data-page="86"],
+    :root:not(.enhanced):has(#page-87:target) .fallback-pagination[data-page="87"],
+    :root:not(.enhanced):has(#page-88:target) .fallback-pagination[data-page="88"],
+    :root:not(.enhanced):has(#page-89:target) .fallback-pagination[data-page="89"],
+    :root:not(.enhanced):has(#page-90:target) .fallback-pagination[data-page="90"],
+    :root:not(.enhanced):has(#page-91:target) .fallback-pagination[data-page="91"],
+    :root:not(.enhanced):has(#page-92:target) .fallback-pagination[data-page="92"],
+    :root:not(.enhanced):has(#page-93:target) .fallback-pagination[data-page="93"],
+    :root:not(.enhanced):has(#page-94:target) .fallback-pagination[data-page="94"],
+    :root:not(.enhanced):has(#page-95:target) .fallback-pagination[data-page="95"],
+    :root:not(.enhanced):has(#page-96:target) .fallback-pagination[data-page="96"] { display: grid; }
   </style>
 </head>
 <body>
   <header class="toolbar">
     <div>
-      <a class="wordmark" id="cover-link" href="#page-1">
+      <a class="wordmark" id="cover-link" href="#page-1" aria-label="返回封面">
         <strong>WINNI</strong><span>作品集</span>
       </a>
       <a class="control" id="return-link" href="#page-1" aria-keyshortcuts="Escape" hidden>返回封面</a>
+      <a class="control fallback-return" href="#page-1">返回封面</a>
+      <a class="control fallback-return" href="#page-2">返回目录</a>
+      <a class="control fallback-return" href="#page-3">返回 AI 项目</a>
     </div>
     <h1 id="page-title" tabindex="-1">个人简介</h1>
     <nav class="toolbar-actions" aria-label="作品集导航">
@@ -313,24 +452,980 @@
   </header>
 
   <main class="reader">
-    <noscript>启用浏览器的 JavaScript 后即可浏览作品集。</noscript>
+    <figure class="page" id="page-1" data-page="1">
+      <img class="artwork" width="2560" height="1440" alt="个人简介，第 1 页" draggable="false" decoding="async" loading="eager" src="assets/01.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-2" data-page="2" data-parent="1">
+      <img class="artwork" width="2560" height="1440" alt="项目目录，第 2 页" draggable="false" decoding="async" loading="lazy" src="assets/02.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+      <nav class="hotspots" data-page="2" aria-label="画面内的项目入口">
+        <a class="hotspot" href="#page-3" aria-label="01 AI 项目" style="left:11.13%;top:19.7%;width:25.05%;height:74.15%"></a>
+        <a class="hotspot" href="#page-48" aria-label="02 软件体验设计" style="left:37.5%;top:19.7%;width:25.0%;height:74.15%"></a>
+        <a class="hotspot" href="#page-83" aria-label="03 品牌创意设计" style="left:63.87%;top:19.7%;width:25.0%;height:74.15%"></a>
+      </nav>
+    </figure>
+    <figure class="page" id="page-3" data-page="3" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="01 AI 项目，第 3 页" draggable="false" decoding="async" loading="lazy" src="assets/03.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+      <nav class="hotspots" data-page="3" aria-label="画面内的项目入口">
+        <a class="hotspot" href="#page-4" aria-label="AI UGC 创作体验设计" style="left:4.69%;top:21.27%;width:32.57%;height:11.72%"></a>
+        <a class="hotspot" href="#page-13" aria-label="AI Agent 主题创作 SOP" style="left:4.69%;top:44.18%;width:32.57%;height:11.72%"></a>
+        <a class="hotspot" href="#page-37" aria-label="AI 萌宠 Note70 副屏设计" style="left:2.93%;top:67.1%;width:36.08%;height:11.63%"></a>
+      </nav>
+    </figure>
+    <figure class="page" id="page-4" data-page="4" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI UGC 创作体验设计，第 4 页" draggable="false" decoding="async" loading="lazy" src="assets/04.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-5" data-page="5" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI UGC 创作体验设计，第 5 页" draggable="false" decoding="async" loading="lazy" src="assets/05.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-6" data-page="6" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI UGC 创作体验设计，第 6 页" draggable="false" decoding="async" loading="lazy" src="assets/06.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-7" data-page="7" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI UGC 创作体验设计，第 7 页" draggable="false" decoding="async" loading="lazy" src="assets/07.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-8" data-page="8" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI UGC 创作体验设计，第 8 页" draggable="false" decoding="async" loading="lazy" src="assets/08.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-9" data-page="9" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI UGC 创作体验设计，第 9 页" draggable="false" decoding="async" loading="lazy" src="assets/09.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-10" data-page="10" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI UGC 创作体验设计，第 10 页" draggable="false" decoding="async" loading="lazy" src="assets/10.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-11" data-page="11" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI UGC 创作体验设计，第 11 页" draggable="false" decoding="async" loading="lazy" src="assets/11.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-12" data-page="12" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI UGC 创作体验设计，第 12 页" draggable="false" decoding="async" loading="lazy" src="assets/12.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-13" data-page="13" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI Agent 主题创作 SOP，第 13 页" draggable="false" decoding="async" loading="lazy" src="assets/13.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-14" data-page="14" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI Agent 主题创作 SOP，第 14 页" draggable="false" decoding="async" loading="lazy" src="assets/14.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-15" data-page="15" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI Agent 主题创作 SOP，第 15 页" draggable="false" decoding="async" loading="lazy" src="assets/15.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-16" data-page="16" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI Agent 主题创作 SOP，第 16 页" draggable="false" decoding="async" loading="lazy" src="assets/16.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-17" data-page="17" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI Agent 主题创作 SOP，第 17 页" draggable="false" decoding="async" loading="lazy" src="assets/17.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-18" data-page="18" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI Agent 主题创作 SOP，第 18 页" draggable="false" decoding="async" loading="lazy" src="assets/18.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-19" data-page="19" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI Agent 主题创作 SOP，第 19 页" draggable="false" decoding="async" loading="lazy" src="assets/19.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-20" data-page="20" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI Agent 主题创作 SOP，第 20 页" draggable="false" decoding="async" loading="lazy" src="assets/20.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-21" data-page="21" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI Agent 主题创作 SOP，第 21 页" draggable="false" decoding="async" loading="lazy" src="assets/21.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-22" data-page="22" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI Agent 主题创作 SOP，第 22 页" draggable="false" decoding="async" loading="lazy" src="assets/22.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-23" data-page="23" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI Agent 主题创作 SOP，第 23 页" draggable="false" decoding="async" loading="lazy" src="assets/23.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-24" data-page="24" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI Agent 主题创作 SOP，第 24 页" draggable="false" decoding="async" loading="lazy" src="assets/24.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-25" data-page="25" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI Agent 主题创作 SOP，第 25 页" draggable="false" decoding="async" loading="lazy" src="assets/25.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-26" data-page="26" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI Agent 主题创作 SOP，第 26 页" draggable="false" decoding="async" loading="lazy" src="assets/26.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-27" data-page="27" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI Agent 主题创作 SOP，第 27 页" draggable="false" decoding="async" loading="lazy" src="assets/27.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-28" data-page="28" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI Agent 主题创作 SOP，第 28 页" draggable="false" decoding="async" loading="lazy" src="assets/28.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-29" data-page="29" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI Agent 主题创作 SOP，第 29 页" draggable="false" decoding="async" loading="lazy" src="assets/29.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-30" data-page="30" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI Agent 主题创作 SOP，第 30 页" draggable="false" decoding="async" loading="lazy" src="assets/30.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-31" data-page="31" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI Agent 主题创作 SOP，第 31 页" draggable="false" decoding="async" loading="lazy" src="assets/31.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-32" data-page="32" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI Agent 主题创作 SOP，第 32 页" draggable="false" decoding="async" loading="lazy" src="assets/32.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-33" data-page="33" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI Agent 主题创作 SOP，第 33 页" draggable="false" decoding="async" loading="lazy" src="assets/33.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-34" data-page="34" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI Agent 主题创作 SOP，第 34 页" draggable="false" decoding="async" loading="lazy" src="assets/34.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-35" data-page="35" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI Agent 主题创作 SOP，第 35 页" draggable="false" decoding="async" loading="lazy" src="assets/35.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-36" data-page="36" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI Agent 主题创作 SOP，第 36 页" draggable="false" decoding="async" loading="lazy" src="assets/36.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-37" data-page="37" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI 萌宠 Note70 副屏设计，第 37 页" draggable="false" decoding="async" loading="lazy" src="assets/37.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-38" data-page="38" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI 萌宠 Note70 副屏设计，第 38 页" draggable="false" decoding="async" loading="lazy" src="assets/38.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-39" data-page="39" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI 萌宠 Note70 副屏设计，第 39 页" draggable="false" decoding="async" loading="lazy" src="assets/39.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-40" data-page="40" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI 萌宠 Note70 副屏设计，第 40 页" draggable="false" decoding="async" loading="lazy" src="assets/40.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-41" data-page="41" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI 萌宠 Note70 副屏设计，第 41 页" draggable="false" decoding="async" loading="lazy" src="assets/41.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-42" data-page="42" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI 萌宠 Note70 副屏设计，第 42 页" draggable="false" decoding="async" loading="lazy" src="assets/42.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-43" data-page="43" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI 萌宠 Note70 副屏设计，第 43 页" draggable="false" decoding="async" loading="lazy" src="assets/43.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-44" data-page="44" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI 萌宠 Note70 副屏设计，第 44 页" draggable="false" decoding="async" loading="lazy" src="assets/44.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-45" data-page="45" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI 萌宠 Note70 副屏设计，第 45 页" draggable="false" decoding="async" loading="lazy" src="assets/45.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-46" data-page="46" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI 萌宠 Note70 副屏设计，第 46 页" draggable="false" decoding="async" loading="lazy" src="assets/46.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-47" data-page="47" data-parent="3">
+      <img class="artwork" width="2560" height="1440" alt="AI 萌宠 Note70 副屏设计，第 47 页" draggable="false" decoding="async" loading="lazy" src="assets/47.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-48" data-page="48" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 48 页" draggable="false" decoding="async" loading="lazy" src="assets/48.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-49" data-page="49" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 49 页" draggable="false" decoding="async" loading="lazy" src="assets/49.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-50" data-page="50" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 50 页" draggable="false" decoding="async" loading="lazy" src="assets/50.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-51" data-page="51" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 51 页" draggable="false" decoding="async" loading="lazy" src="assets/51.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-52" data-page="52" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 52 页" draggable="false" decoding="async" loading="lazy" src="assets/52.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-53" data-page="53" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 53 页" draggable="false" decoding="async" loading="lazy" src="assets/53.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-54" data-page="54" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 54 页" draggable="false" decoding="async" loading="lazy" src="assets/54.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-55" data-page="55" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 55 页" draggable="false" decoding="async" loading="lazy" src="assets/55.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-56" data-page="56" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 56 页" draggable="false" decoding="async" loading="lazy" src="assets/56.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-57" data-page="57" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 57 页" draggable="false" decoding="async" loading="lazy" src="assets/57.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-58" data-page="58" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 58 页" draggable="false" decoding="async" loading="lazy" src="assets/58.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-59" data-page="59" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 59 页" draggable="false" decoding="async" loading="lazy" src="assets/59.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-60" data-page="60" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 60 页" draggable="false" decoding="async" loading="lazy" src="assets/60.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-61" data-page="61" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 61 页" draggable="false" decoding="async" loading="lazy" src="assets/61.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-62" data-page="62" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 62 页" draggable="false" decoding="async" loading="lazy" src="assets/62.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-63" data-page="63" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 63 页" draggable="false" decoding="async" loading="lazy" src="assets/63.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-64" data-page="64" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 64 页" draggable="false" decoding="async" loading="lazy" src="assets/64.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-65" data-page="65" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 65 页" draggable="false" decoding="async" loading="lazy" src="assets/65.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-66" data-page="66" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 66 页" draggable="false" decoding="async" loading="lazy" src="assets/66.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-67" data-page="67" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 67 页" draggable="false" decoding="async" loading="lazy" src="assets/67.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-68" data-page="68" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 68 页" draggable="false" decoding="async" loading="lazy" src="assets/68.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-69" data-page="69" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 69 页" draggable="false" decoding="async" loading="lazy" src="assets/69.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-70" data-page="70" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 70 页" draggable="false" decoding="async" loading="lazy" src="assets/70.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-71" data-page="71" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 71 页" draggable="false" decoding="async" loading="lazy" src="assets/71.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-72" data-page="72" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 72 页" draggable="false" decoding="async" loading="lazy" src="assets/72.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-73" data-page="73" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 73 页" draggable="false" decoding="async" loading="lazy" src="assets/73.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-74" data-page="74" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 74 页" draggable="false" decoding="async" loading="lazy" src="assets/74.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-75" data-page="75" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 75 页" draggable="false" decoding="async" loading="lazy" src="assets/75.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-76" data-page="76" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 76 页" draggable="false" decoding="async" loading="lazy" src="assets/76.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-77" data-page="77" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 77 页" draggable="false" decoding="async" loading="lazy" src="assets/77.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-78" data-page="78" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 78 页" draggable="false" decoding="async" loading="lazy" src="assets/78.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-79" data-page="79" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 79 页" draggable="false" decoding="async" loading="lazy" src="assets/79.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-80" data-page="80" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 80 页" draggable="false" decoding="async" loading="lazy" src="assets/80.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-81" data-page="81" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 81 页" draggable="false" decoding="async" loading="lazy" src="assets/81.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-82" data-page="82" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="02 软件体验设计，第 82 页" draggable="false" decoding="async" loading="lazy" src="assets/82.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-83" data-page="83" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="03 品牌创意设计，第 83 页" draggable="false" decoding="async" loading="lazy" src="assets/83.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-84" data-page="84" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="03 品牌创意设计，第 84 页" draggable="false" decoding="async" loading="lazy" src="assets/84.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-85" data-page="85" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="03 品牌创意设计，第 85 页" draggable="false" decoding="async" loading="lazy" src="assets/85.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-86" data-page="86" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="03 品牌创意设计，第 86 页" draggable="false" decoding="async" loading="lazy" src="assets/86.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-87" data-page="87" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="03 品牌创意设计，第 87 页" draggable="false" decoding="async" loading="lazy" src="assets/87.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-88" data-page="88" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="03 品牌创意设计，第 88 页" draggable="false" decoding="async" loading="lazy" src="assets/88.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-89" data-page="89" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="03 品牌创意设计，第 89 页" draggable="false" decoding="async" loading="lazy" src="assets/89.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-90" data-page="90" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="03 品牌创意设计，第 90 页" draggable="false" decoding="async" loading="lazy" src="assets/90.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-91" data-page="91" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="03 品牌创意设计，第 91 页" draggable="false" decoding="async" loading="lazy" src="assets/91.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-92" data-page="92" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="03 品牌创意设计，第 92 页" draggable="false" decoding="async" loading="lazy" src="assets/92.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-93" data-page="93" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="03 品牌创意设计，第 93 页" draggable="false" decoding="async" loading="lazy" src="assets/93.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-94" data-page="94" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="03 品牌创意设计，第 94 页" draggable="false" decoding="async" loading="lazy" src="assets/94.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-95" data-page="95" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="03 品牌创意设计，第 95 页" draggable="false" decoding="async" loading="lazy" src="assets/95.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
+    <figure class="page" id="page-96" data-page="96" data-parent="2">
+      <img class="artwork" width="2560" height="1440" alt="致谢，第 96 页" draggable="false" decoding="async" loading="lazy" src="assets/96.webp">
+      <p class="image-error" role="status" hidden>此页图片暂时无法显示。请刷新网页重试。</p>
+    </figure>
   </main>
 
-  <template id="page-template">
-    <figure class="page">
-      <img class="artwork" width="2880" height="1620" alt="" draggable="false" decoding="async">
-      <p class="image-error" role="status" hidden></p>
-    </figure>
-  </template>
-
   <nav class="pagination" aria-label="作品集翻页">
-    <div class="progress" id="progress" aria-hidden="true"></div>
-    <div class="pagination-inner">
+    <div class="pagination-inner" id="live-pagination">
+      <div class="progress" id="progress" aria-hidden="true"></div>
       <a class="control" id="previous-link" aria-keyshortcuts="ArrowLeft" hidden>上一页</a>
       <div class="page-counter" role="status" aria-label="当前页与总页数">
         <span id="page-number">01</span><span>/</span><span>96</span>
       </div>
-      <a class="control control-primary" id="next-link" href="#page-2" aria-keyshortcuts="ArrowRight">进入目录</a>
+      <a class="control control-primary pagination-next" id="next-link" href="#page-2" aria-keyshortcuts="ArrowRight">进入目录</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="2" style="--page-progress: calc(100% * 2 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-1">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>02</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-3">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="3" style="--page-progress: calc(100% * 3 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-2">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>03</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-4">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="4" style="--page-progress: calc(100% * 4 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-3">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>04</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-5">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="5" style="--page-progress: calc(100% * 5 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-4">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>05</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-6">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="6" style="--page-progress: calc(100% * 6 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-5">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>06</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-7">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="7" style="--page-progress: calc(100% * 7 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-6">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>07</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-8">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="8" style="--page-progress: calc(100% * 8 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-7">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>08</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-9">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="9" style="--page-progress: calc(100% * 9 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-8">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>09</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-10">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="10" style="--page-progress: calc(100% * 10 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-9">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>10</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-11">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="11" style="--page-progress: calc(100% * 11 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-10">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>11</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-12">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="12" style="--page-progress: calc(100% * 12 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-11">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>12</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-13">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="13" style="--page-progress: calc(100% * 13 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-12">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>13</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-14">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="14" style="--page-progress: calc(100% * 14 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-13">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>14</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-15">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="15" style="--page-progress: calc(100% * 15 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-14">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>15</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-16">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="16" style="--page-progress: calc(100% * 16 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-15">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>16</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-17">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="17" style="--page-progress: calc(100% * 17 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-16">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>17</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-18">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="18" style="--page-progress: calc(100% * 18 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-17">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>18</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-19">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="19" style="--page-progress: calc(100% * 19 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-18">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>19</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-20">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="20" style="--page-progress: calc(100% * 20 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-19">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>20</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-21">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="21" style="--page-progress: calc(100% * 21 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-20">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>21</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-22">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="22" style="--page-progress: calc(100% * 22 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-21">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>22</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-23">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="23" style="--page-progress: calc(100% * 23 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-22">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>23</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-24">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="24" style="--page-progress: calc(100% * 24 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-23">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>24</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-25">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="25" style="--page-progress: calc(100% * 25 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-24">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>25</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-26">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="26" style="--page-progress: calc(100% * 26 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-25">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>26</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-27">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="27" style="--page-progress: calc(100% * 27 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-26">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>27</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-28">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="28" style="--page-progress: calc(100% * 28 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-27">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>28</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-29">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="29" style="--page-progress: calc(100% * 29 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-28">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>29</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-30">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="30" style="--page-progress: calc(100% * 30 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-29">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>30</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-31">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="31" style="--page-progress: calc(100% * 31 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-30">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>31</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-32">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="32" style="--page-progress: calc(100% * 32 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-31">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>32</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-33">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="33" style="--page-progress: calc(100% * 33 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-32">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>33</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-34">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="34" style="--page-progress: calc(100% * 34 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-33">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>34</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-35">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="35" style="--page-progress: calc(100% * 35 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-34">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>35</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-36">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="36" style="--page-progress: calc(100% * 36 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-35">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>36</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-37">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="37" style="--page-progress: calc(100% * 37 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-36">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>37</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-38">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="38" style="--page-progress: calc(100% * 38 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-37">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>38</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-39">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="39" style="--page-progress: calc(100% * 39 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-38">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>39</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-40">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="40" style="--page-progress: calc(100% * 40 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-39">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>40</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-41">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="41" style="--page-progress: calc(100% * 41 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-40">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>41</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-42">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="42" style="--page-progress: calc(100% * 42 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-41">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>42</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-43">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="43" style="--page-progress: calc(100% * 43 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-42">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>43</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-44">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="44" style="--page-progress: calc(100% * 44 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-43">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>44</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-45">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="45" style="--page-progress: calc(100% * 45 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-44">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>45</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-46">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="46" style="--page-progress: calc(100% * 46 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-45">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>46</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-47">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="47" style="--page-progress: calc(100% * 47 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-46">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>47</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-48">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="48" style="--page-progress: calc(100% * 48 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-47">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>48</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-49">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="49" style="--page-progress: calc(100% * 49 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-48">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>49</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-50">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="50" style="--page-progress: calc(100% * 50 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-49">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>50</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-51">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="51" style="--page-progress: calc(100% * 51 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-50">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>51</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-52">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="52" style="--page-progress: calc(100% * 52 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-51">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>52</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-53">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="53" style="--page-progress: calc(100% * 53 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-52">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>53</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-54">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="54" style="--page-progress: calc(100% * 54 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-53">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>54</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-55">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="55" style="--page-progress: calc(100% * 55 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-54">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>55</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-56">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="56" style="--page-progress: calc(100% * 56 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-55">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>56</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-57">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="57" style="--page-progress: calc(100% * 57 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-56">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>57</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-58">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="58" style="--page-progress: calc(100% * 58 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-57">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>58</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-59">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="59" style="--page-progress: calc(100% * 59 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-58">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>59</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-60">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="60" style="--page-progress: calc(100% * 60 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-59">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>60</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-61">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="61" style="--page-progress: calc(100% * 61 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-60">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>61</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-62">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="62" style="--page-progress: calc(100% * 62 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-61">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>62</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-63">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="63" style="--page-progress: calc(100% * 63 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-62">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>63</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-64">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="64" style="--page-progress: calc(100% * 64 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-63">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>64</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-65">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="65" style="--page-progress: calc(100% * 65 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-64">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>65</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-66">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="66" style="--page-progress: calc(100% * 66 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-65">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>66</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-67">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="67" style="--page-progress: calc(100% * 67 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-66">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>67</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-68">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="68" style="--page-progress: calc(100% * 68 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-67">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>68</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-69">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="69" style="--page-progress: calc(100% * 69 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-68">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>69</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-70">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="70" style="--page-progress: calc(100% * 70 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-69">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>70</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-71">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="71" style="--page-progress: calc(100% * 71 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-70">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>71</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-72">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="72" style="--page-progress: calc(100% * 72 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-71">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>72</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-73">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="73" style="--page-progress: calc(100% * 73 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-72">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>73</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-74">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="74" style="--page-progress: calc(100% * 74 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-73">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>74</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-75">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="75" style="--page-progress: calc(100% * 75 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-74">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>75</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-76">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="76" style="--page-progress: calc(100% * 76 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-75">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>76</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-77">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="77" style="--page-progress: calc(100% * 77 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-76">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>77</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-78">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="78" style="--page-progress: calc(100% * 78 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-77">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>78</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-79">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="79" style="--page-progress: calc(100% * 79 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-78">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>79</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-80">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="80" style="--page-progress: calc(100% * 80 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-79">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>80</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-81">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="81" style="--page-progress: calc(100% * 81 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-80">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>81</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-82">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="82" style="--page-progress: calc(100% * 82 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-81">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>82</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-83">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="83" style="--page-progress: calc(100% * 83 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-82">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>83</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-84">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="84" style="--page-progress: calc(100% * 84 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-83">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>84</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-85">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="85" style="--page-progress: calc(100% * 85 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-84">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>85</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-86">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="86" style="--page-progress: calc(100% * 86 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-85">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>86</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-87">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="87" style="--page-progress: calc(100% * 87 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-86">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>87</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-88">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="88" style="--page-progress: calc(100% * 88 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-87">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>88</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-89">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="89" style="--page-progress: calc(100% * 89 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-88">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>89</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-90">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="90" style="--page-progress: calc(100% * 90 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-89">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>90</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-91">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="91" style="--page-progress: calc(100% * 91 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-90">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>91</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-92">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="92" style="--page-progress: calc(100% * 92 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-91">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>92</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-93">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="93" style="--page-progress: calc(100% * 93 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-92">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>93</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-94">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="94" style="--page-progress: calc(100% * 94 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-93">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>94</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-95">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="95" style="--page-progress: calc(100% * 95 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-94">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>95</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-96">下一页</a>
+    </div>
+    <div class="pagination-inner fallback-pagination" data-page="96" style="--page-progress: calc(100% * 96 / 96)">
+      <div class="progress" aria-hidden="true"></div>
+      <a class="control" href="#page-95">上一页</a>
+      <div class="page-counter" aria-label="当前页与总页数"><span>96</span><span>/</span><span>96</span></div>
+      <a class="control control-primary pagination-next" href="#page-1">回到封面</a>
     </div>
   </nav>
 
@@ -347,25 +1442,10 @@
       { first: 96, last: 96, title: "致谢", parent: 2 }
     ];
 
-    const menus = new Map([
-      [2, [
-        { target: 3, bounds: [11.13, 19.70, 25.05, 74.15] },
-        { target: 48, bounds: [37.50, 19.70, 25.00, 74.15] },
-        { target: 83, bounds: [63.87, 19.70, 25.00, 74.15] }
-      ]],
-      [3, [
-        { target: 4, bounds: [4.69, 21.27, 32.57, 11.72] },
-        { target: 13, bounds: [4.69, 44.18, 32.57, 11.72] },
-        { target: 37, bounds: [2.93, 67.10, 36.08, 11.63] }
-      ]]
-    ]);
-
     const returnLabels = { 1: "返回封面", 2: "返回目录", 3: "返回 AI 项目" };
-    const lastPage = sections.at(-1).last;
+    const lastPage = sections[sections.length - 1].last;
     const pageHash = (page) => `#page-${page}`;
     const sectionFor = (page) => sections.find(({ first, last }) => page >= first && page <= last);
-    const reader = document.querySelector(".reader");
-    const template = document.getElementById("page-template");
     const toolbar = document.querySelector(".toolbar");
     const scroller = document.scrollingElement;
     const coverLink = document.getElementById("cover-link");
@@ -380,62 +1460,6 @@
     let activePage;
     let endAnchorPage;
     let scrollUpdateFrame = 0;
-
-    function setImageState(frame, state) {
-      frame.dataset.state = state;
-      frame.setAttribute("aria-busy", String(state === "loading"));
-      frame.querySelector(".image-error").hidden = state !== "error";
-    }
-
-    function createProjectLinks(page) {
-      const hotspots = document.createElement("nav");
-      hotspots.className = "hotspots";
-      hotspots.dataset.page = page;
-      hotspots.setAttribute("aria-label", "画面内的项目入口");
-
-      for (const { target, bounds } of menus.get(page)) {
-        const title = sectionFor(target).title;
-        const [left, top, width, height] = bounds;
-        const overlay = document.createElement("a");
-        overlay.className = "hotspot";
-        overlay.href = pageHash(target);
-        overlay.setAttribute("aria-label", title);
-        Object.assign(overlay.style, {
-          left: `${left}%`,
-          top: `${top}%`,
-          width: `${width}%`,
-          height: `${height}%`
-        });
-        hotspots.append(overlay);
-      }
-
-      return hotspots;
-    }
-
-    function createPage(page) {
-      const frame = template.content.firstElementChild.cloneNode(true);
-      frame.id = `page-${page}`;
-      frame.dataset.page = page;
-      const artwork = frame.querySelector(".artwork");
-      artwork.alt = `${sectionFor(page).title}，第 ${page} 页`;
-      frame.querySelector(".image-error").textContent = "图片暂时无法加载。请刷新页面后重试。";
-      artwork.addEventListener("load", () => {
-        if (artwork.hasAttribute("src")) setImageState(frame, "ready");
-      });
-      artwork.addEventListener("error", () => {
-        if (artwork.hasAttribute("src")) setImageState(frame, "error");
-      });
-      if (menus.has(page)) frame.append(createProjectLinks(page));
-      return frame;
-    }
-
-    function loadArtwork(frame) {
-      const artwork = frame.querySelector(".artwork");
-      if (artwork.hasAttribute("src")) return;
-      const page = Number(frame.dataset.page);
-      setImageState(frame, "loading");
-      artwork.src = `assets/${String(page).padStart(2, "0")}.avif`;
-    }
 
     function updateNavigation(page) {
       if (page === activePage) return;
@@ -508,23 +1532,16 @@
       scheduleScrollUpdate();
     }
 
-    const frames = Array.from({ length: lastPage }, (_, index) => createPage(index + 1));
-    reader.append(...frames);
-
-    const nearbyPages = new IntersectionObserver((entries) => {
-      for (const { target: frame, isIntersecting } of entries) {
-        if (isIntersecting) {
-          loadArtwork(frame);
-        } else {
-          const artwork = frame.querySelector(".artwork");
-          if (artwork.hasAttribute("src")) {
-            artwork.removeAttribute("src");
-            setImageState(frame, "idle");
-          }
-        }
-      }
-    }, { rootMargin: "600px 0px" });
-    for (const frame of frames) nearbyPages.observe(frame);
+    const frames = Array.from(document.querySelectorAll(".page"));
+    for (const frame of frames) {
+      const artwork = frame.querySelector(".artwork");
+      const showError = () => {
+        frame.dataset.state = "error";
+        frame.querySelector(".image-error").hidden = false;
+      };
+      artwork.addEventListener("error", showError, { once: true });
+      if (artwork.complete && !artwork.naturalWidth) showError();
+    }
 
     document.addEventListener("pointermove", (event) => {
       if (event.pointerType === "touch" || reducedMotion.matches) return;
@@ -572,9 +1589,24 @@
 
     const initialPage = pageFromHash() ?? 1;
     const initialFrame = frames[initialPage - 1];
-    loadArtwork(initialFrame);
-    if (initialPage !== 1) initialFrame.scrollIntoView();
     updateNavigation(initialPage);
+    document.documentElement.classList.add("enhanced");
+
+    const viewport = window.visualViewport;
+    if (viewport && window.matchMedia("(hover: none) and (pointer: coarse)").matches) {
+      const alignPagination = () => {
+        const bottom = viewport.height + viewport.offsetTop;
+        const gap = viewport.scale === 1 ? Math.max(0, Math.ceil(scroller.clientHeight - bottom)) : 0;
+        scroller.style.setProperty("--viewport-bottom-gap", `${gap}px`);
+        scheduleScrollUpdate();
+      };
+      viewport.addEventListener("resize", alignPagination);
+      viewport.addEventListener("scroll", alignPagination);
+      window.addEventListener("resize", alignPagination);
+      alignPagination();
+    }
+
+    if (initialPage !== 1) initialFrame.scrollIntoView();
     syncAnchor();
   </script>
 </body>
